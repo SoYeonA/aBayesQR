@@ -1,0 +1,15 @@
+filename of reference sequence (FASTA) : sample_reference.fasta
+filname of the aligned reads (sam format) : sample_reads.sam
+SNV_thres : 0.01
+overlap_ratio_start : 0.9
+overlap_ratio_end : 0.1
+reconstruction_start : 1
+reconstruction_stop: 1300
+min_mapping_qual : 60
+min_read_length : 150
+max_insert_length : 250
+max_gap_fraction (relative to alignment length) : 0.05
+min_align_score_fraction (relative to read length): 0.35
+characteristic zone name : test
+seq_err (assumed sequencing error rate(%)) : 0.1
+MEC improvement threshold : 0.0395 
