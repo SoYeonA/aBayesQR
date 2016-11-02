@@ -1,7 +1,6 @@
 aBayesQR is a viral quasispecies reconstruction algorithm that employs a maximum-likelihood framework to infer individual sequences in a mixture from high-throughput sequencing data. The search for the most likely quasispecies is conducted on long contigs constructed from the set of short reads, which enables identification of closely related haplotypes in a population and provides computational tractability of the Bayesian method. aBayesQR is the first method which is capable of detecting and reliably reconstructing viral haplotypes having very small mutual genetic distances.
 
 
-
 Installation:
 -------------
 
