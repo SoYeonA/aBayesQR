@@ -6,7 +6,7 @@ Installation:
 -------------
 
  1. Create a aBayesQR directory and download the compressed aBayesQR_v1.zip
-    from https://github.com/SoYeonA/aBayesQR
+    from https://github.com/SoyeonA/aBayesQR
  2. Uncompress aBayesQR_v1.zip into the directory.
  3. Enter aBayesQR directory run make
 
