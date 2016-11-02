@@ -4,10 +4,8 @@ aBayesQR is a viral quasispecies reconstruction algorithm that employs a maximum
 Installation:
 -------------
 
- 1. Create a aBayesQR directory and download the compressed aBayesQR_v1.zip
-    from https://github.com/SoyeonA/aBayesQR
- 2. Uncompress aBayesQR_v1.zip into the directory.
- 3. Enter aBayesQR directory run make
+ 1. Create a aBayesQR directory and download the source code from repository
+ 2. Enter aBayesQR directory run make
 
 
 Data Preparation:
