@@ -20,3 +20,8 @@ Running aBayesQR:
 Command : aBayesQR <config file> 
 
 Output : <zone name>_ViralSeq.txt (reconstructed viral quasispecies and their frequencies are reported in text format)
+
+ 
+Data availability:
+------------------
+Synthetic dataset emulating Illumina Miseq can be downloaded from https://drive.google.com/open?id=0BwemozAztPK1ZERHUDYzSHgzb2s
