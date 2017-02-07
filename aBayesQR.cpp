@@ -1803,6 +1803,7 @@ void ML_QSR(vector<vector<int> > SNV_matrix, vector<vector<int> > SNV_freq, int 
 
 	for (int s=1; s<N; s++)
 	{
+       // cout << "At position "<< s << endl ;
 		vector<int> permu;
 		for (int i=0; i<4; i++)
 		{
@@ -2299,18 +2300,27 @@ void makeoutput(vector<vector<int> > viral_quasi, vector<double> viral_freq, int
 {
 	vector<int> index(num_strain,0);
 	sortFreq(viral_freq, num_strain, index);
-	for (int i=0; i<num_strain; i++)
+	/*for (int i=0; i<num_strain; i++)
 		cout << index[i] << " ";
 	cout << endl;
+     */
+    
+    cout << "Estimated population size: " << num_strain << endl;
+   // cout << "Estimated frequencies "<< endl ;
+    for (int i=0; i<num_strain; i++)
+    {
+        cout << "Frequency of strain " << i+1 << ": " << viral_freq[index[i]]<< endl;
+    }
+    cout << endl;
 
 	std::ofstream writefile1;
-	std::ofstream writefile2;
-	std::ofstream writefile3;
+	//std::ofstream writefile2;
+	//std::ofstream writefile3;
 
 	std::string name = zonename;
 
 	writefile1.open(name+"_ViralSeq.txt");
-//	writefile2.open(name+"_Seq.txt");
+//	writefile2.open(n ame+"_Seq.txt");
 //	writefile3.open(name+"_Freq.txt");
 
 
@@ -2416,11 +2426,11 @@ int main(int argc, char* argv[]) {
 	string cons;
 	vector<string> FASTAreads;
 	double SNV_thres;
-	double overlap_ratio_start, overlap_ratio_end;
+	double overlap_ratio_start = 0.9, overlap_ratio_end = 0.1;
 	int  reconstruction_start,  reconstruction_end;
 	double  min_qual;
 	int min_length, max_insertln;
-	double  max_gap_fraction, min_align_score_fraction; 
+	double  max_gap_fraction = 0.05, min_align_score_fraction = 0.35;
 	double seq_err;
 	double eta1;
 	
@@ -2435,40 +2445,40 @@ int main(int argc, char* argv[]) {
 	SNV_thres = atof(arg_buffer[2].c_str());
 
 	if(count > 3){
-	    overlap_ratio_start  = atof(arg_buffer[3].c_str());
-	    if(count > 4){
-	      overlap_ratio_end = atof(arg_buffer[4].c_str());
-	      if(count > 5){
-		reconstruction_start = atoi(arg_buffer[5].c_str());
-		if(count > 6){
-		  reconstruction_end = atoi(arg_buffer[6].c_str());
-		  if(count > 7){
-		    min_qual = atoi(arg_buffer[7].c_str());
-		    if(count > 8){
-		      min_length =  atoi(arg_buffer[8].c_str());
-		      if(count > 9){
-		      	max_insertln = atoi(arg_buffer[9].c_str());
-			if(count > 10){
-			  max_gap_fraction = atof(arg_buffer[10].c_str());
-			  if(count > 11){
-			  min_align_score_fraction = atof(arg_buffer[11].c_str());
-				if(count >12){
-				zonename = arg_buffer[12];
-					if (count > 13){
-					seq_err = atof(arg_buffer[13].c_str());
-						if (count > 14){
-							eta1 = atof(arg_buffer[14].c_str());
+	 //   overlap_ratio_start  = atof(arg_buffer[3].c_str());
+	  //  if(count > 4){
+	  //    overlap_ratio_end = atof(arg_buffer[4].c_str());
+	  //    if(count > 5){
+		reconstruction_start = atoi(arg_buffer[3].c_str());
+		if(count > 4){
+		  reconstruction_end = atoi(arg_buffer[4].c_str());
+		  if(count > 5){
+		    min_qual = atoi(arg_buffer[5].c_str());
+		    if(count > 6){
+		      min_length =  atoi(arg_buffer[6].c_str());
+		      if(count > 7){
+		      	max_insertln = atoi(arg_buffer[7].c_str());
+			//if(count > 10){
+			//  max_gap_fraction = atof(arg_buffer[10].c_str());
+			//  if(count > 11){
+			//  min_align_score_fraction = atof(arg_buffer[11].c_str());
+				if(count >8){
+				zonename = arg_buffer[8];
+					if (count > 9){
+					seq_err = atof(arg_buffer[9].c_str());
+						if (count > 10){
+							eta1 = atof(arg_buffer[10].c_str());
 						}
 					}
 				}
 			  
-			}
-			}
+			//}
+		//	}
 		      }
 		    }
 		  }
-		}
-	    }
+		//}
+	    //}
 	  }
 	}
 	seq_err = seq_err*0.01;	
@@ -2530,6 +2540,7 @@ int main(int argc, char* argv[]) {
     	cout << "total number of group: " << nMember.size() << endl;
     
     	start = clock();
+    cout << endl<< "Quasispecies reconstruction starts with " << nMember.size()<< " superreads covering "<< nSNV<< " SNVs"  << endl;
 	vector<vector<int>> haplo_snv;
     	ML_QSR(SNV_matrix, SNV_freq, nFrag, nSNV, superread_matrix, count_matrix, score_matrix, nMember, seq_err, haplo_snv, eta1);
 	end = clock();  
@@ -2547,7 +2558,7 @@ int main(int argc, char* argv[]) {
 			viral_quasi[i][SNV_pos[j]] = haplo_snv[i][j];
 		}
 	}
-	cout << "Viral Quasispecies: "   << endl;
+	/*cout << "Viral Quasispecies: "   << endl;
 	for (int i=0; i<num_strain; i++)
 	{
 		for (int j=0; j<gene_length; j++)
@@ -2555,15 +2566,15 @@ int main(int argc, char* argv[]) {
 			cout << viral_quasi[i][j];
 		}
 		cout << endl;
-	}
+	}*/
 
 	vector<double> viral_freq(num_strain,0);
 	estimateViralFreq(viral_freq, viral_quasi, haplo_snv, Read_matrix, superread_matrix, nMember, nGroup, group_matrix, num_strain, nSNV, gene_length, nReads);
 	
-	cout << "Viral frequency : "   << endl;
+	/*cout << "Viral frequency : "   << endl;
 	for (int i=0; i<num_strain; i++)
 		cout << viral_freq[i] << " ";
-	cout << endl;
+	cout << endl;*/
 
 	makeoutput(viral_quasi, viral_freq, num_strain, gene_length, zonename);
 }
