@@ -21,4 +21,6 @@ Command : aBayesQR <config file>
 
 Output : <zone name>_ViralSeq.txt (reconstructed viral quasispecies and their frequencies are reported in text format)
 
-
+Parameter setting:
+------------------
+The choice of parameter 'MEC improvement threshold' in config is described in Appendix B in http://biorxiv.org/content/biorxiv/early/2017/01/27/103630.full.pdf
