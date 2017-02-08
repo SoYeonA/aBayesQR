@@ -12,7 +12,7 @@ Data Preparation:
 Check config file format (configure to your setting)
 
 * config file included in the package is configured to sample set 
-* the aligned reads file (SAM format) and corresponding reference file (FASTA format) are required for quasispecies reconstruction
+* the aligned paired-end reads file (SAM format) and corresponding reference file (FASTA format) are required for quasispecies reconstruction
 
 
 Running aBayesQR:
