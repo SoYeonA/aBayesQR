@@ -24,3 +24,5 @@ Output : <zone name>_ViralSeq.txt (reconstructed viral quasispecies and their fr
 Parameter setting:
 ------------------
 The choice of parameter 'MEC improvement threshold' in config is described in Appendix B in http://biorxiv.org/content/biorxiv/early/2017/02/06/103630.full.pdf
+
+
