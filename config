@@ -1,5 +1,6 @@
 filename of reference sequence (FASTA) : sample_reference.fasta
 filname of the aligned reads (sam format) : sample_reads.sam
+paired-end (1 = true, 0 = false) : 0
 SNV_thres : 0.01
 reconstruction_start : 1
 reconstruction_stop: 1300

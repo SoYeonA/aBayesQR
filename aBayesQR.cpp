@@ -107,17 +107,20 @@ void parse_sam_line(const vector<string>& tokens, vector<int>& seq_b, double& a_
     		}
  	} 
 	if (!foundAscore)
+	{
 		cout << foundAscore << " no a_score "<< a_score << endl;
- 
+//		a_score = min_align_score_fraction * seq_b.size() *2; 
+ 	}
 	al_start = atoi( tokens[3].c_str()) ;
  
+//	if(tokens[5] != "*"){
 	vector<int> isAlpha(tokens[5].size(),1);
-  	for(int i =0; i< tokens[5].size();i++)
+	for(int i =0; i< tokens[5].size();i++)
 	{
     		if(!isalpha(tokens[5][i]))
       			isAlpha[i] = 0;
 	}
-  
+//  	}
   	vector<int> sub_length_vec;
   	vector<char> symbols;
   	int sub_length =0;
@@ -168,8 +171,7 @@ void parse_sam_line(const vector<string>& tokens, vector<int>& seq_b, double& a_
 	}  
 }
 
-int parseSAMpaired( string al, double max_gap_fraction, double min_align_score_fraction, double min_qual, int min_length, int max_insertln, char gap_quality,
-	      double& mean_length, vector<vector<int> >& Read_matrix, int reconstruction_start, int reconstruction_end, int& total_count, int gene_length)
+int parseSAMpaired( string al, double max_gap_fraction, double min_align_score_fraction, double min_qual, int min_length, int max_insertln, char gap_quality, double& mean_length, vector<vector<int> >& Read_matrix, int reconstruction_start, int reconstruction_end, int& total_count, int gene_length)
 {
 	string line;
   	vector<string> tokens, tokens_1, tokens_2;
@@ -336,6 +338,100 @@ int parseSAMpaired( string al, double max_gap_fraction, double min_align_score_f
 	   	 }
 	}
   	return 0;
+}
+
+int parseSAM(string al, double max_gap_fraction, double min_align_score_fraction, double min_qual, int min_length, int max_insertln, char gap_quality, double& mean_length, vector<vector<int> >& Read_matrix, int reconstruction_start, int reconstruction_end, int& total_count, int gene_length)
+{
+	string line;
+        vector<string> tokens;
+	int seq_counter =0;
+        vector<int> seq_b;
+        double a_score;
+        int indels;
+        int al_start;
+        string sRC_1, pairs_1;
+        string id;
+        int RC;
+   
+        ifstream inf6(al.c_str(),ios::in);
+	while( getline(inf6,line,'\n') )
+        {
+                if(line[0] == '@')
+                        continue;
+                tokens = tokenize(line,"\t");
+                if(tokens.size() <5)
+                {
+                        cout << "Problem with sam file..." << endl;
+                        return 1;
+                }
+                id =  tokens[0];
+                total_count++;
+		
+		RC =  atoi( tokens[1].c_str());
+                stringstream strs;
+                string sRC = binary(RC,  strs);
+                int sz = sRC.size();
+                if(sz > 8) // bit9-12 should be 0
+                        continue;
+		if(sRC[sz-3] == '1' ||  sRC[sz-4]  == '1'  ) // bit 3-4 should be 0
+                        continue;
+	//	if(sRC[sz-5] == 0 ||  sRC[sz-5]  == 1  ) 
+	//	{
+		parse_sam_line(tokens, seq_b,  a_score,  gap_quality, indels, al_start );
+		
+		int qual =  atoi( tokens[4].c_str());
+		if( seq_b.size() >= min_length && qual >= min_qual && double(indels)/seq_b.size() < max_gap_fraction && a_score/seq_b.size()  >  min_align_score_fraction)
+		{
+			int StartPos = al_start;
+			int EndPos = StartPos + seq_b.size()-1; //range = reconstruction_end-reconstruction_start+1;
+			
+			if ( StartPos <= reconstruction_end && EndPos >= reconstruction_start)
+                        {
+				vector<int> SEQ_range;
+				if (StartPos < reconstruction_start)
+				{
+					if (EndPos <= reconstruction_end)
+					{
+						vector<int> SEQ_inrange(seq_b.begin()+(reconstruction_start-StartPos),seq_b.end());
+                                                vector<int> Ns(gene_length-SEQ_inrange.size(),0);
+                                                SEQ_inrange.insert(SEQ_inrange.end(),Ns.begin(),Ns.end());
+                                                SEQ_range = SEQ_inrange;
+					}
+					else
+					{
+						vector<int> SEQ_inrange(seq_b.begin()+(reconstruction_start-StartPos),seq_b.begin()+(reconstruction_end-StartPos+1));
+                                                SEQ_range = SEQ_inrange;
+					}
+				}
+				else
+				{
+					if (EndPos <= reconstruction_end)
+					{
+						vector<int> SEQ_inrange = seq_b;
+                                                vector<int> Ns1(StartPos-reconstruction_start,0);
+                                                SEQ_inrange.insert(SEQ_inrange.begin(),Ns1.begin(),Ns1.end());
+                                                vector<int> Ns2(reconstruction_end-EndPos,0);
+                                                SEQ_inrange.insert(SEQ_inrange.end(),Ns2.begin(),Ns2.end());
+                                                SEQ_range = SEQ_inrange;
+                                        }
+                                        else
+                                        {
+						vector<int> SEQ_inrange(seq_b.begin(),seq_b.begin()+(reconstruction_end-StartPos+1));
+                                                vector<int> Ns(StartPos-reconstruction_start,0);
+                                                SEQ_inrange.insert(SEQ_inrange.begin(),Ns.begin(),Ns.end());
+                                                SEQ_range = SEQ_inrange;
+                                        }
+				}
+			
+				Read_matrix.push_back(SEQ_range); // nReads by genome_length
+				mean_length += seq_b.size();
+                	        seq_counter++;
+			}
+		}
+	//	}
+
+	}
+	return 0;
 }
 
 void callSNV(vector<vector<int> >& Read_matrix, vector<vector<int> >& Allele_freq, vector<vector<int> >& SNV_matrix,  vector<vector<int> >& SNV_freq, vector<int>& Homo_seq, vector<int>& SNV_pos, int nReads, int gene_length, double SNV_thres, int& nSNV, vector<int>& deleted_reads_list)
@@ -2425,6 +2521,7 @@ int main(int argc, char* argv[]) {
 	
 	string cons;
 	vector<string> FASTAreads;
+	int pairedend;
 	double SNV_thres;
 	double overlap_ratio_start = 0.9, overlap_ratio_end = 0.1;
 	int  reconstruction_start,  reconstruction_end;
@@ -2442,32 +2539,33 @@ int main(int argc, char* argv[]) {
 	}
 	cons =  arg_buffer[0];
 	FASTAreads.push_back(arg_buffer[1]);
-	SNV_thres = atof(arg_buffer[2].c_str());
+	pairedend = atoi(arg_buffer[2].c_str());
+	SNV_thres = atof(arg_buffer[3].c_str());
 
-	if(count > 3){
+	if(count > 4){
 	 //   overlap_ratio_start  = atof(arg_buffer[3].c_str());
 	  //  if(count > 4){
 	  //    overlap_ratio_end = atof(arg_buffer[4].c_str());
 	  //    if(count > 5){
-		reconstruction_start = atoi(arg_buffer[3].c_str());
-		if(count > 4){
-		  reconstruction_end = atoi(arg_buffer[4].c_str());
-		  if(count > 5){
-		    min_qual = atoi(arg_buffer[5].c_str());
-		    if(count > 6){
-		      min_length =  atoi(arg_buffer[6].c_str());
-		      if(count > 7){
-		      	max_insertln = atoi(arg_buffer[7].c_str());
+		reconstruction_start = atoi(arg_buffer[4].c_str());
+		if(count > 5){
+		  reconstruction_end = atoi(arg_buffer[5].c_str());
+		  if(count > 6){
+		    min_qual = atoi(arg_buffer[6].c_str());
+		    if(count > 7){
+		      min_length =  atoi(arg_buffer[7].c_str());
+		      if(count > 8){
+		      	max_insertln = atoi(arg_buffer[8].c_str());
 			//if(count > 10){
 			//  max_gap_fraction = atof(arg_buffer[10].c_str());
 			//  if(count > 11){
 			//  min_align_score_fraction = atof(arg_buffer[11].c_str());
-				if(count >8){
-				zonename = arg_buffer[8];
-					if (count > 9){
-					seq_err = atof(arg_buffer[9].c_str());
-						if (count > 10){
-							eta1 = atof(arg_buffer[10].c_str());
+				if(count >9){
+				zonename = arg_buffer[9];
+					if (count > 10){
+					seq_err = atof(arg_buffer[10].c_str());
+						if (count > 11){
+							eta1 = atof(arg_buffer[11].c_str());
 						}
 					}
 				}
@@ -2494,7 +2592,11 @@ int main(int argc, char* argv[]) {
 	int gene_length  = reconstruction_end-reconstruction_start+1;
 	
 	int error_flag = 0;
-  	error_flag = parseSAMpaired(FASTAreads[0],  max_gap_fraction, min_align_score_fraction, min_qual,  min_length, max_insertln, gap_quality,  mean_length, Read_matrix, reconstruction_start, reconstruction_end, total_count, gene_length);
+	if (pairedend == 1)
+  		error_flag = parseSAMpaired(FASTAreads[0],  max_gap_fraction, min_align_score_fraction, min_qual,  min_length, max_insertln, gap_quality,  mean_length, Read_matrix, reconstruction_start, reconstruction_end, total_count, gene_length);
+	else
+		error_flag = parseSAM(FASTAreads[0],  max_gap_fraction, min_align_score_fraction, min_qual,  min_length, max_insertln, gap_quality,  mean_length, Read_matrix, reconstruction_start, reconstruction_end, total_count, gene_length);
+	
  	if(error_flag>0)
     		return 1;
 	int nReads = Read_matrix.size();
@@ -2504,8 +2606,10 @@ int main(int argc, char* argv[]) {
 	        if (Read_matrix[i].size() != gene_length)
 			cout << "error!!!"<<endl;
 	}
-	cout <<  endl << "After parsing " << total_count << " reads in file " <<FASTAreads[0]<< ", there are "<<nReads<< " paired_end reads(mean lengths "<< mean_length/Read_matrix.size() << ") covering regions "<< reconstruction_start << "-" << reconstruction_end <<"."<< endl;
-	
+	if (pairedend == 1)
+		cout <<  endl << "After parsing " << total_count << " sequencing reads in file " <<FASTAreads[0]<< ", there are "<<nReads<< " paired_end reads(mean lengths "<< mean_length/Read_matrix.size() << ") covering regions "<< reconstruction_start << "-" << reconstruction_end <<"."<< endl;
+	else
+		cout <<  endl << "After parsing " << total_count << " sequencing reads in file " <<FASTAreads[0]<< ", there are "<<nReads<< " reads(mean lengths "<< mean_length/Read_matrix.size() << ") covering regions "<< reconstruction_start << "-" << reconstruction_end <<"."<< endl;
 	end = clock();	
 	cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 	cout << "CPU time for SAM parsing: "  << cpu_time_used << endl<<endl;
