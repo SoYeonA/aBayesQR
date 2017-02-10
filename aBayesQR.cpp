@@ -54,7 +54,7 @@ string binary(int number, stringstream& strs)
 	return  strs.str();
 }
 
-// Code for parsing SAM file (line 59-339) adapted from PredictHaplo
+// Code for parsing SAM file (line 59-435) adapted from PredictHaplo
 // http://bmda.cs.unibas.ch/software.html
 vector<string> tokenize(const string& str,const string& delimiters)
 {
