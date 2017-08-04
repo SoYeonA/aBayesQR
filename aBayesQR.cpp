@@ -1486,6 +1486,10 @@ void getHapSeq(vector<vector<int> >& cand, int& numcand, int M, vector<vector<in
 		}
 		else
 		{
+			double inv_num_msr = 1/double(num_msr);
+			for (int i=0;  i<Npermu; i++)
+				PR[i] = pow(PR[i],inv_num_msr);
+
 			double sumPR2 = accumulate(PR2.begin(),PR2.end(),0.0);
 			for (int i=0; i<Npermu; i++)
 				relPR[c][i] = PR2[i]/double(sumPR2);
