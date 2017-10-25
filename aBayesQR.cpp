@@ -54,7 +54,7 @@ string binary(int number, stringstream& strs)
 	return  strs.str();
 }
 
-// Code for parsing SAM file (line 59-339) adapted from PredictHaplo
+// Code for parsing SAM file (line 59-342) adapted and modified from PredictHaplo
 // http://bmda.cs.unibas.ch/software.html
 vector<string> tokenize(const string& str,const string& delimiters)
 {
@@ -235,10 +235,11 @@ int parseSAMpaired( string al, double max_gap_fraction, double min_align_score_f
 	      		int qual = atoi(tokens_1[4].c_str());
 	      		int qual_pairs = atoi(tokens_2[4].c_str());
 	
-	      		if( seq_b.size() >= min_length && seq_b_pairs.size() >= min_length 
-				&& qual >= min_qual && qual_pairs >= min_qual
-		  		&& double(indels)/seq_b.size() < max_gap_fraction && double(indels_pairs)/seq_b_pairs.size() < max_gap_fraction 
-		  		&& a_score/seq_b.size()  >  min_align_score_fraction &&  a_score_pairs/seq_b_pairs.size()  >  min_align_score_fraction)
+	      		if( //seq_b.size() >= min_length && seq_b_pairs.size() >= min_length 
+				//&&
+				 qual >= min_qual && qual_pairs >= min_qual)
+		  	//	&& double(indels)/seq_b.size() < max_gap_fraction && double(indels_pairs)/seq_b_pairs.size() < max_gap_fraction 
+		  	//	&& a_score/seq_b.size()  >  min_align_score_fraction &&  a_score_pairs/seq_b_pairs.size()  >  min_align_score_fraction)
 			{	
 				int StartPos = al_start;
 				vector<int> SEQ_combined = seq_b;
@@ -2414,14 +2415,14 @@ void makeoutput(vector<vector<int> > viral_quasi, vector<double> viral_freq, int
     cout << endl;
 
 	std::ofstream writefile1;
-	//std::ofstream writefile2;
-	//std::ofstream writefile3;
+	std::ofstream writefile2;
+	std::ofstream writefile3;
 
 	std::string name = zonename;
 
 	writefile1.open(name+"_ViralSeq.txt");
-//	writefile2.open(n ame+"_Seq.txt");
-//	writefile3.open(name+"_Freq.txt");
+	writefile2.open(name+"_Seq.txt");
+	writefile3.open(name+"_Freq.txt");
 
 
 	for (int i=0; i<num_strain; i++)
@@ -2452,7 +2453,7 @@ void makeoutput(vector<vector<int> > viral_quasi, vector<double> viral_freq, int
 		writefile1 << "\n";
 	}
 
-/*	for (int i=0; i<num_strain; i++)
+	for (int i=0; i<num_strain; i++)
 	{
 		for (int j=0; j<gene_length; j++)
 		{
@@ -2480,10 +2481,10 @@ void makeoutput(vector<vector<int> > viral_quasi, vector<double> viral_freq, int
 
 	for (int i=0; i<num_strain; i++)
 		writefile3 << viral_freq[index[i]] << " ";
-*/
+
 	writefile1.close();
-//	writefile2.close();
-//	writefile3.close();		
+	writefile2.close();
+	writefile3.close();		
 }
 
 int main(int argc, char* argv[]) {
@@ -2531,7 +2532,6 @@ int main(int argc, char* argv[]) {
 	int  reconstruction_start,  reconstruction_end;
 	double  min_qual;
 	int min_length, max_insertln;
-	double  max_gap_fraction = 0.05, min_align_score_fraction = 0.35;
 	double seq_err;
 	double eta1;
 	
@@ -2560,10 +2560,6 @@ int main(int argc, char* argv[]) {
 		      min_length =  atoi(arg_buffer[7].c_str());
 		      if(count > 8){
 		      	max_insertln = atoi(arg_buffer[8].c_str());
-			//if(count > 10){
-			//  max_gap_fraction = atof(arg_buffer[10].c_str());
-			//  if(count > 11){
-			//  min_align_score_fraction = atof(arg_buffer[11].c_str());
 				if(count >9){
 				zonename = arg_buffer[9];
 					if (count > 10){
@@ -2573,9 +2569,6 @@ int main(int argc, char* argv[]) {
 						}
 					}
 				}
-			  
-			//}
-		//	}
 		      }
 		    }
 		  }
