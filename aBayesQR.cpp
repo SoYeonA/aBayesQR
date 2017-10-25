@@ -171,7 +171,7 @@ void parse_sam_line(const vector<string>& tokens, vector<int>& seq_b, double& a_
 	}  
 }
 
-int parseSAMpaired( string al, double max_gap_fraction, double min_align_score_fraction, double min_qual, int min_length, int max_insertln, char gap_quality, double& mean_length, vector<vector<int> >& Read_matrix, int reconstruction_start, int reconstruction_end, int& total_count, int gene_length)
+int parseSAMpaired( string al, double min_qual, int min_length, int max_insertln, char gap_quality, double& mean_length, vector<vector<int> >& Read_matrix, int reconstruction_start, int reconstruction_end, int& total_count, int gene_length)
 {
 	string line;
   	vector<string> tokens, tokens_1, tokens_2;
@@ -341,7 +341,7 @@ int parseSAMpaired( string al, double max_gap_fraction, double min_align_score_f
   	return 0;
 }
 
-int parseSAM(string al, double max_gap_fraction, double min_align_score_fraction, double min_qual, int min_length, int max_insertln, char gap_quality, double& mean_length, vector<vector<int> >& Read_matrix, int reconstruction_start, int reconstruction_end, int& total_count, int gene_length)
+int parseSAM(string al, double min_qual, int min_length, int max_insertln, char gap_quality, double& mean_length, vector<vector<int> >& Read_matrix, int reconstruction_start, int reconstruction_end, int& total_count, int gene_length)
 {
 	string line;
         vector<string> tokens;
@@ -381,7 +381,10 @@ int parseSAM(string al, double max_gap_fraction, double min_align_score_fraction
 		parse_sam_line(tokens, seq_b,  a_score,  gap_quality, indels, al_start );
 		
 		int qual =  atoi( tokens[4].c_str());
-		if( seq_b.size() >= min_length && qual >= min_qual && double(indels)/seq_b.size() < max_gap_fraction && a_score/seq_b.size()  >  min_align_score_fraction)
+		if( //seq_b.size() >= min_length && 
+	qual >= min_qual 
+//&& double(indels)/seq_b.size() < max_gap_fraction && a_score/seq_b.size()  >  min_align_score_fraction
+	)
 		{
 			int StartPos = al_start;
 			int EndPos = StartPos + seq_b.size()-1; //range = reconstruction_end-reconstruction_start+1;
@@ -2590,9 +2593,9 @@ int main(int argc, char* argv[]) {
 	
 	int error_flag = 0;
 	if (pairedend == 1)
-  		error_flag = parseSAMpaired(FASTAreads[0],  max_gap_fraction, min_align_score_fraction, min_qual,  min_length, max_insertln, gap_quality,  mean_length, Read_matrix, reconstruction_start, reconstruction_end, total_count, gene_length);
+  		error_flag = parseSAMpaired(FASTAreads[0], min_qual,  min_length, max_insertln, gap_quality,  mean_length, Read_matrix, reconstruction_start, reconstruction_end, total_count, gene_length);
 	else
-		error_flag = parseSAM(FASTAreads[0],  max_gap_fraction, min_align_score_fraction, min_qual,  min_length, max_insertln, gap_quality,  mean_length, Read_matrix, reconstruction_start, reconstruction_end, total_count, gene_length);
+		error_flag = parseSAM(FASTAreads[0], min_qual,  min_length, max_insertln, gap_quality,  mean_length, Read_matrix, reconstruction_start, reconstruction_end, total_count, gene_length);
 	
  	if(error_flag>0)
     		return 1;
