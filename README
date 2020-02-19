@@ -3,9 +3,12 @@ aBayesQR is a viral quasispecies reconstruction algorithm that employs a maximum
 
 Installation:
 -----------------
+To build from source:
 1. Create a aBayesQR directory and download the source code from repository
 2. Enter aBayesQR directory run make
 
+To install with conda run:
+conda install -c hcc abayesqr
 
 Data Preparation:
 -----------------
